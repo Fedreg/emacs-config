@@ -1,0 +1,53 @@
+#+TITLE: Uplift Emacs Configuration
+
+Due to something with the marmalade package repo, the first time you
+start emacs you will have to restart it. After that it seems to work
+without a hitch.
+
+This is the main configuration file in this setup, and should act as a good starting point for anybody at Uplift. It is designed to be customized, and of course anything can be added to your personal configuration.
+
+Because this is an org file, it allows documentation to sit right along side the code which makes it much more readable.
+
+This file is loaded by =init.el=, using babel.
+
+* General
+
+Settings that are generally applicable in all situations
+
+** Enable Debugging
+
+In case anything goes wrong during startup, it is very useful to have debugging on
+
+#+BEGIN_SRC emacs-lisp
+(setq debug-on-error t)
+(setq debug-on-quit t)
+#+END_SRC
+
+** UTF-8
+
+Always use UTF-8 when possible
+
+#+BEGIN_SRC emacs-lisp
+(set-language-environment "UTF-8")
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(setq default-buffer-file-coding-system 'utf-8)
+#+END_SRC
+
+** Setup packages
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+#+END_SRC
+
+Remove HTTP entries from package archives
+
+#+BEGIN_SRC emacs-lisp
+(setq package-archives nil)
+#+END_SRC
+
+Add package repositories (GNU, melpa[-stable], marmalade, and org-elpa)
+
+"settings.org" 777L, 18092C
