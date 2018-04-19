@@ -111,7 +111,7 @@ Set the initial mode to Fundamental
 Fullscreen window
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'window-setup-hook 'toggle-frame-fullscreen t)
+(add-hook 'window-setup-hook 'toggle-frame-fullscreen nil)
 #+END_SRC
 
 ** Echo commands
@@ -128,9 +128,11 @@ Hide the toolbar, menubar, scrollbar, and tooltips
 
 #+BEGIN_SRC emacs-lisp
 (tool-bar-mode -1)
-(menu-bar-mode -1)
+(menu-bar-mode 1)
 (scroll-bar-mode -1)
-(tooltip-mode -1)
+(tooltip-mode 1)
+
+
 #+END_SRC
 
 Show lines and columns in the mode line
@@ -362,9 +364,9 @@ Enable Aspell, with fast settings, at least 3 chars
 Use the gruber-darker theme by default
 
 #+BEGIN_SRC emacs-lisp
-(use-package soothe-theme 
+(use-package darkokai-theme 
   :ensure t
-  :config (load-theme 'soothe t))
+  :config (load-theme 'darkokai t))
 #+END_SRC
 ** Modeline
 
@@ -468,8 +470,11 @@ Evil mode is Emacs version of VIM modal editing.
 (use-package evil
  :ensure t
  :config
- (evil-mode 1)
- (define-key evil-insert-state-map "jk" 'evil-normal-state))
+ (evil-mode 1))
+
+(evil-escape-mode 1)
+(setq-default evil-escape-key-sequence "jk")
+
 #+END_SRC
 
 ** which-key
