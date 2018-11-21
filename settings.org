@@ -1,4 +1,4 @@
-d#+TITLE: Fed's Emacs Configuration (evil centric)
+#+TITLE: Fed's Emacs Configuration (evil centric)
 
 This file is loaded by =init.el=, using babel.
 
