@@ -1,12 +1,4 @@
-d#+TITLE: Fed's Emacs Configuration
-
-Due to something with the marmalade package repo, the first time you
-start emacs you will have to restart it. After that it seems to work
-without a hitch.
-
-This is the main configuration file in this setup, and should act as a good starting point for anybody at Uplift. It is designed to be customized, and of course anything can be added to your personal configuration.
-
-Because this is an org file, it allows documentation to sit right along side the code which makes it much more readable.
+d#+TITLE: Fed's Emacs Configuration (evil centric)
 
 This file is loaded by =init.el=, using babel.
 
@@ -340,7 +332,7 @@ Enable Aspell, with fast settings, at least 3 chars
 #+BEGIN_SRC emacs-lisp
 (defun uplift/osx-fonts ()
   (interactive)
-  (set-fontset-font "fontset-default" 'symbol "Fira Code")
+  (set-fontset-font "fontset-default" 'symbol "Menlo")
   (setq mac-allow-anti-aliasing t))
 
 (defun uplift/linux-fonts ()
@@ -355,8 +347,37 @@ Enable Aspell, with fast settings, at least 3 chars
 
 (setq-default line-spacing 5)
 
-;; TODO: Windows fonts
-
+(when (window-system)
+  (set-frame-font "Menlo"))
+(let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                 (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                 (36 . ".\\(?:>\\)")
+                 (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                 (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                 (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                 (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                 (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                 ;; (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                 (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                 (48 . ".\\(?:x[a-zA-Z]\\)")
+                 (58 . ".\\(?:::\\|[:=]\\)")
+                 (59 . ".\\(?:;;\\|;\\)")
+                 (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                 (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                 (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                 (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                 (91 . ".\\(?:]\\)")
+                 (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                 (94 . ".\\(?:=\\)")
+                 (119 . ".\\(?:ww\\)")
+                 (123 . ".\\(?:-\\)")
+                 (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                 (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                 )
+               ))
+    (dolist (char-regexp alist)
+      (set-char-table-range composition-function-table (car char-regexp)
+                            `([,(cdr char-regexp) 0 font-shape-gstring]))))
 #+END_SRC
 
 ** Theme
@@ -364,9 +385,9 @@ Enable Aspell, with fast settings, at least 3 chars
 Use the exotica theme by default
 
 #+BEGIN_SRC emacs-lisp
-(use-package exotica-theme
+(use-package material-theme
   :ensure t
-  :config (load-theme 'exotica t))
+  :config (load-theme 'material t))
 #+END_SRC
 ** Modeline
 
@@ -375,7 +396,7 @@ Use powerline modeline
 #+BEGIN_SRC emacs-lisp
 (use-package powerline
   :ensure t
-  :init (powerline-default-theme))
+  :init (powerline-vim-theme))
 #+END_SRC
 
 * Navigation
@@ -619,6 +640,15 @@ Use spaces instead of tabs, always
 (setq-default indent-tabs-mode nil)
 #+END_SRC
 
+*** Better Defaults
+
+Better Defaults without the fuss
+
+#+BEGIN_SRC emacs-lisp
+(use-package better-defaults
+  :ensure t)
+#+END_SRC
+
 ** General Lisps
 
 Highlight parentheses
@@ -656,9 +686,13 @@ CIDER does all of the heavy lifting for Clojure
   :ensure t
   :pin melpa-stable
    :config
-     (setq cider-repl-use-pretty-printing t)
-     (setq cider-repl-display-help-banner nil)
-     (setq cider-repl-history-file (expand-file-name "cider-history" user-emacs-directory))
+     (setq cider-repl-use-pretty-printing       t)
+     (setq cider-repl-display-help-banner       nil)
+     (setq cider-auto-jump-to-error             nil)
+     (setq cider-auto-select-error-buffer       nil)
+     (setq cider-show-error-buffer              :only-in-repl)
+     (setq cider-auto-select-test-report-buffer nil)
+     (setq cider-repl-history-file              (expand-file-name "cider-history" user-emacs-directory))
    :bind (:map cider-repl-mode-map
               ("M-r" . cider-namespace-refresh)
               ("C-c DEL" . cider-repl-clear-buffer)))
@@ -678,6 +712,18 @@ Add clojure snippets to yasnippet
   :ensure t)
 #+END_SRC
 
+Refactor support for Clojure
+
+#+BEGIN_SRC emacs-lisp
+(require 'clj-refactor)
+
+(defun my-clojure-mode-hook ()
+    (clj-refactor-mode 1)
+    (yas-minor-mode 1) ; for adding require/use/import statements
+    (cljr-add-keybindings-with-prefix "C-c C-m"))
+
+(add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
+#+END_SRC
 ** Elixir
 
 Alchemist is the Elixir mode for Emacs
@@ -749,66 +795,45 @@ web-mode is good for editing HTML and JS
   :config (add-hook 'web-mode-hook 'emmet-mode))
 #+END_SRC
 
-* Finalizations
-  **Keymaps
+* Keymaps
 
-Personal Customizations
 
 Switch back to last buffer
 #+BEGIN_SRC emacs-lisp
-  (defun switch-to-previous-buffer ()
-    (interactive)
-    (switch-to-buffer (other-buffer (current-buffer) 1)))
+(defun switch-to-previous-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
 
-  (global-set-key (kbd "C-c b") 'switch-to-previous-buffer)
+(global-set-key (kbd "C-c b") 'switch-to-previous-buffer)
+#+END_SRC
 
+Run Cider Debugger
+#+BEGIN_SRC emacs-lisp
 (defun my-cider-debug-setup ()
   (evil-make-overriding-map cider--debug-mode-map 'normal)
   (evil-normalize-keymaps))
 
 (add-hook 'cider--debug-mode-hook 'my-cider-debug-setup)
 
-  (defun run-cider-debugger()
-    (interactive)
-    (cider-debug-defun-at-point))
+(defun run-cider-debugger()
+  (interactive)
+  (cider-debug-defun-at-point))
 
-  (global-set-key (kbd "C-c d") 'run-cider-debugger)
+(global-set-key (kbd "C-c d") 'run-cider-debugger)
 
-  (global-auto-revert-mode t)
-
-  (when (window-system)
-    (set-frame-font "Fira Code"))
-  (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-                 (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-                 (36 . ".\\(?:>\\)")
-                 (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-                 (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-                 (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-                 (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-                 (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-                 ;; (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-                 (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-                 (48 . ".\\(?:x[a-zA-Z]\\)")
-                 (58 . ".\\(?:::\\|[:=]\\)")
-                 (59 . ".\\(?:;;\\|;\\)")
-                 (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-                 (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-                 (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-                 (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-                 (91 . ".\\(?:]\\)")
-                 (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-                 (94 . ".\\(?:=\\)")
-                 (119 . ".\\(?:ww\\)")
-                 (123 . ".\\(?:-\\)")
-                 (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-                 (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-                 )
-               ))
-    (dolist (char-regexp alist)
-      (set-char-table-range composition-function-table (car char-regexp)
-                            `([,(cdr char-regexp) 0 font-shape-gstring]))))
+(global-auto-revert-mode t)
 #+END_SRC
 
+Jump to definition
+#+BEGIN_SRC emacs-lisp
+(defun jump-to-variable-definition ()
+  (interactive)
+  (cider-find-var))
+
+(global-set-key (kbd "C-c v") 'jump-to-variable-definition)
+#+END_SRC
+
+* Finalize
 ** Disable debugging
 
 Startup finished, turn debugging off
