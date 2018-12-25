@@ -741,6 +741,32 @@ Use markdown-mode
   :ensure t)
 #+END_SRC
 
+** Go-lang
+
+#+BEGIN_SRC emacs-lisp
+(use-package go-mode
+  :ensure t)
+#+END_SRC
+
+Local Go playground in emacs
+#+BEGIN_SRC emacs-lisp
+(use-package go-playground
+  :ensure t)
+#+END_SRC
+
+Flycheck
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :ensure t
+  :pin melpa-stable
+  :init (global-flycheck-mode))
+#+END_SRC
+
+Gofmt & flycheck on save
+#+BEGIN_SRC emacs-lisp
+(add-hook 'before-save-hook 'gofmt-before-save)
+#+END_SRC
+
 ** Org
 
 Highlight code in =#+BEGIN_SRC ... #+END_SRC= blocks in org files
