@@ -322,7 +322,6 @@ Auto Save buffers
 #+END_SRC
 
 * Look & Feel
-
 ** Tree
 
 #+BEGIN_SRC emacs-lisp
@@ -396,9 +395,9 @@ Auto Save buffers
 Use the doom themes
 
 #+BEGIN_SRC emacs-lisp
-(use-package doom-themes
+(use-package clues-theme
   :ensure t
-  :config (load-theme 'doom-dracula t))
+  :config (load-theme 'clues t))
 #+END_SRC
 ** Modeline
 
@@ -661,6 +660,13 @@ Better Defaults without the fuss
   :ensure t)
 #+END_SRC
 
+*** Code Folding
+
+Activate by mode
+#+BEGIN_SRC emacs-lisp
+(add-hook 'clojure-mode-hook 'hs-minor-mode)
+#+END_SRC
+
 ** General Lisps
 
 Highlight parentheses
@@ -674,24 +680,30 @@ Highlight parentheses
 
 Enable rainbow delimiters
 
-#+BEGIN_SRC emacs-lisp
-(use-package rainbow-delimiters
-  :ensure t
-  :config (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-#+END_SRC
+# #+BEGIN_SRC emacs-lisp
+# (use-package rainbow-delimiters
+#   :ensure t
+#   :config (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+# #+END_SRC
 
 ** Common Lisp
 
-# #+BEGIN_SRC emacs-lisp
-#  (use-package sly
-#    :ensure t)
+#+BEGIN_SRC emacs-lisp
+  (use-package slime
+    :ensure t)
+  (setq inferior-lisp-program "/usr/local/bin/sbcl")
+  (add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
+  (add-hook 'inferior-lisp-mode-hook (lambda () (inferior-slime-mode t)))
 
-# (setq inferior-lisp-program "/usr/local/bin/sbcl")
-# #+END_SRC
+  (add-hook 'slime-repl-mode-hook
+          (lambda ()
+            (el-get 'sync 'slime-repl-ansi-color)
+            (slime-setup '(slime-fancy slime-banner slime-indentation slime-repl-ansi-color))))
 
-# (setq inferior-lisp-program "sbcl")
-# (setq inferior-lisp-program "/usr/local/bin/sbcl")
-# #+END_SRC
+  (slime-setup '(slime-fancy slime-asdf))
+
+#+END_SRC
+
 ** Clojure
 
 =clojure-mode= offers some nice features (e.g. =clojure-fill-docstring=)
@@ -764,6 +776,11 @@ Elm Mode
   :ensure t)
 #+END_SRC
 
+Elm Format on Save
+#+BEGIN_SRC emacs-lisp
+(use-package elm-mode
+  :ensure t)
+#+END_SRC
 ** Go-lang
 
 #+BEGIN_SRC emacs-lisp
@@ -935,12 +952,7 @@ A http client for a postman like experience from within emacs!
   :ensure t
   :mode ("\\.http\\'" . restclient-mode))
 #+END_SRC
-** Jira
-#+BEGIN_SRC emacs-lisp
-(setq jiralib-url "https://upliftinc.atlassian.net")
 
-(setq jiralib-token (cons "Cookie" "cloud.session.token=eyJraWQiOiJzZXNzaW9uLXNlcnZpY2VcL3Nlc3Npb24tc2VydmljZSIsImFsZyI6IlJTMjU2In0.eyJhc3NvY2lhdGlvbnMiOltdLCJzdWIiOiI1YWU3NTZjNDIzZGQ5NDJkNTZkOTRmZDEiLCJhdWQiOiJhdGxhc3NpYW4iLCJpbXBlcnNvbmF0aW9uIjpbXSwibmJmIjoxNTUwODE4ODc3LCJyZWZyZXNoVGltZW91dCI6MTU1MDgxOTQ3NywiaXNzIjoic2Vzc2lvbi1zZXJ2aWNlIiwic2Vzc2lvbklkIjoiZTlkYjY5ZGEtNzFjNS00OWZkLTk2YzMtZGNlY2M2ODI2MDc3IiwiZXhwIjoxNTUzNDEwODc3LCJpYXQiOjE1NTA4MTg4NzcsImVtYWlsIjoiZnJlZ2dpYXJkb0B1cGxpZnQuY29tIiwianRpIjoiZTlkYjY5ZGEtNzFjNS00OWZkLTk2YzMtZGNlY2M2ODI2MDc3In0.G1G6J066znOgdBEKsrj_O_mDl1GYwWdu5ijR9hCLDTEnNOAqZMXeWflob5dnVrr_fVHDFnKOlV4hF-bakUcuRVF5yC2pBuAG7IKBybx0dDIorVO6tf3ryj5LCAAM5A8kW4ZYqB_ChAUvnVxqhoL3X3Lpj_gMt2YZ8eI2EvbYfxRRO9ePCPCMKH2L1o-ZJLyxoXNNz7-e8tT6J6ndIHvjjNkVnA5sWu90QZ0Feayw5tqM98DZ60atMp4sCB70wpzG46b64V8zaK-ISQ6k0ZSO6AcFRXS4e0P0ZSQw3UJiXh2Gsn8gTAc6e4804DsTO55J-0xRyzdXBtbyzaPH9TbtqA"))
-#+END_SRC
 ** Disable debugging
 
 Startup finished, turn debugging off
