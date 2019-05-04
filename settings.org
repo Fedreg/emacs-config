@@ -32,6 +32,9 @@ Always use UTF-8 when possible
 
 #+BEGIN_SRC emacs-lisp
 (require 'package)
+
+(eval-when-compile
+  (require 'use-package))
 #+END_SRC
 
 Remove HTTP entries from package archives
@@ -46,14 +49,10 @@ Add package repositories (GNU, melpa[-stable], marmalade, and org-elpa)
 (defvar gnu '("gnu" . "https://elpa.gnu.org/packages/"))
 (defvar melpa '("melpa" . "https://melpa.org/packages/"))
 (defvar melpa-stable '("melpa-stable" . "https://stable.melpa.org/packages/"))
-(defvar marmalade '("marmalade" . "https://marmalade-repo.org/packages/"))
-(defvar org-elpa '("org" . "http://orgmode.org/elpa/"))
 
 (add-to-list 'package-archives gnu t)
 (add-to-list 'package-archives melpa t)
 (add-to-list 'package-archives melpa-stable t)
-(add-to-list 'package-archives marmalade t)
-(add-to-list 'package-archives org-elpa t)
 #+END_SRC
 
 Evaluate package list
@@ -87,6 +86,16 @@ Install missing packages
 #+END_SRC
 
 ** Startup
+
+Profile Startup
+
+#+BEGIN_SRC emacs-lisp
+(use-package benchmark-init
+  :ensure t
+  :config
+  ;; To disable collection of benchmark data after init is done.
+  (add-hook 'after-init-hook 'benchmark-init/deactivate))
+#+END_SRC
 
 Don't show the startup message
 
@@ -134,24 +143,6 @@ Show lines and columns in the mode line
 (column-number-mode 1)
 #+END_SRC
 
-Show line numbers on the margin
-
-#+BEGIN_SRC emacs-lisp
-;(global-linum-mode)
-#+END_SRC
-
-Hide the mouse when typing
-
-#+BEGIN_SRC emacs-lisp
-;(setq make-pointer-invisible t)
-#+END_SRC
-
-Use a solid cursor (no blinking)
-
-#+BEGIN_SRC emacs-lisp
-;(blink-cursor-mode -1)
-#+END_SRC
-
 Stop =C-z= from suspending the frame
 
 Note that it is reset to =undo-tree-undo= below
@@ -166,7 +157,8 @@ Load the correct path when on unix-y systems
 
 #+BEGIN_SRC emacs-lisp
 (use-package exec-path-from-shell
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
@@ -181,13 +173,6 @@ Always highlight syntax
 #+END_SRC
 
 ** Files/Buffers
-
-Save state between sessions. You may also want to look at the
-functionality =bookmark+= has for saving desktops.
-
-#+BEGIN_SRC emacs-lisp
-;(desktop-save-mode 1)
-#+END_SRC
 
 Change custom file (so =init.el= isn't modified)
 
@@ -216,8 +201,8 @@ Don't create lockfiles
 Fix duplicate buffers by adding the directory when necessary
 
 #+BEGIN_SRC emacs-lisp
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'forward)
+(use-package uniquify
+  :config (setq uniquify-buffer-name-style 'forward))
 #+END_SRC
 
 Save the cursor location in files between sessions
@@ -355,44 +340,9 @@ Auto Save buffers
   (add-hook 'after-init-hook #'uplift/linux-fonts))
 
 (setq-default line-spacing 5)
-
-; (when (window-system)
-;  (set-frame-font "Menlo"))
-; (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-;                  (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-;                  (36 . ".\\(?:>\\)")
-;                  (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-;                  (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-;                  (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-;                  (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-;                  (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-;                  ;; (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-;                  (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-;                  (48 . ".\\(?:x[a-zA-Z]\\)")
-;                  (58 . ".\\(?:::\\|[:=]\\)")
-;                  (59 . ".\\(?:;;\\|;\\)")
-;                  (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-;                  (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-;                  (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-;                  (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-;                  (91 . ".\\(?:]\\)")
-;                  (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-;                  (94 . ".\\(?:=\\)")
-;                  (119 . ".\\(?:ww\\)")
-;                  (123 . ".\\(?:-\\)")
-;                  (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-;                  (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-;                  )
-;                ))
-;     (dolist (char-regexp alist)
-;       (set-char-table-range composition-function-table (car char-regexp)
-;                             `([,(cdr char-regexp) 0 font-shape-gstring]))))
-
 #+END_SRC
 
 ** Theme
-
-Use the doom themes
 
 #+BEGIN_SRC emacs-lisp
 (use-package clues-theme
@@ -461,7 +411,8 @@ Counsel ensures that you use the Ivy versions of common commands, which offer gr
   :config (counsel-projectile-mode))
 
 (use-package flx
-  :ensure t)
+  :ensure t
+  :defer t)
 #+END_SRC
 
 Use regex plus mode for ivy searching
@@ -609,7 +560,8 @@ Add fuzzy matching to company
 
 #+BEGIN_SRC emacs-lisp
 (use-package company-flx
-  :ensure t)
+  :ensure t
+  :defer t)
 #+END_SRC
 
 Add quickhelp to show documentation
@@ -620,7 +572,8 @@ Add quickhelp to show documentation
   :config (company-quickhelp-mode 1))
 
 (use-package pos-tip
-  :ensure t)
+  :ensure t
+  :defer t)
 #+END_SRC
 
 *** Highlighting
@@ -690,7 +643,9 @@ Enable rainbow delimiters
 
 #+BEGIN_SRC emacs-lisp
   (use-package slime
-    :ensure t)
+    :ensure t
+    :defer t)
+
   (setq inferior-lisp-program "/usr/local/bin/sbcl")
   (add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
   (add-hook 'inferior-lisp-mode-hook (lambda () (inferior-slime-mode t)))
@@ -738,34 +693,17 @@ More clojure highlighting
 
 #+BEGIN_SRC emacs-lisp
 (use-package clojure-mode-extra-font-locking
-  :ensure t)
+  :ensure t
+  :defer t)
 #+END_SRC
 
-Add clojure snippets to yasnippet
-
-#+BEGIN_SRC emacs-lisp
-(use-package clojure-snippets
-  :ensure t)
-#+END_SRC
-
-Refactor support for Clojure
-
-#+BEGIN_SRC emacs-lisp
-(require 'clj-refactor)
-
-(defun my-clojure-mode-hook ()
-    (clj-refactor-mode 1)
-    (yas-minor-mode 1) ; for adding require/use/import statements
-    (cljr-add-keybindings-with-prefix "C-c C-m"))
-
-(add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
-#+END_SRC
 ** Elixir
 
 Alchemist is the Elixir mode for Emacs
 #+BEGIN_SRC emacs-lisp
 (use-package alchemist
-  :ensure t)
+  :ensure t
+  :defer t)
 #+END_SRC
 
 ** Elm
@@ -773,19 +711,16 @@ Alchemist is the Elixir mode for Emacs
 Elm Mode
 #+BEGIN_SRC emacs-lisp
 (use-package elm-mode
-  :ensure t)
+  :ensure t
+  :defer t)
 #+END_SRC
 
-Elm Format on Save
-#+BEGIN_SRC emacs-lisp
-(use-package elm-mode
-  :ensure t)
-#+END_SRC
 ** Go-lang
 
 #+BEGIN_SRC emacs-lisp
 (use-package go-mode
-  :ensure t)
+  :ensure t
+  :defer t)
 #+END_SRC
 
 Local Go playground in emacs
@@ -810,13 +745,22 @@ Gofmt & flycheck on save
 ** Java
 #+BEGIN_SRC emacs-lisp
 (require 'cc-mode)
+(use-package lsp-mode 
+  :ensure t
+  :defer t)
 
-(use-package projectile :ensure t)
-(use-package treemacs :ensure t)
-(use-package lsp-mode :ensure t)
-(use-package hydra :ensure t)
-(use-package company-lsp :ensure t)
-(use-package lsp-ui :ensure t)
+(use-package hydra 
+  :ensure t
+  :defer t)
+
+(use-package company-lsp 
+  :ensure t
+  :defer t)
+
+(use-package lsp-ui 
+  :ensure t
+  :defer t)
+
 (use-package lsp-java
   :ensure t
   :after lsp
@@ -830,8 +774,9 @@ Gofmt & flycheck on save
   (dap-mode t)
   (dap-ui-mode t))
 
-(use-package dap-java :after (lsp-java))
-(use-package lsp-java-treemacs :after (treemacs))
+(use-package dap-java 
+  :after (lsp-java)
+  :defer t)
 #+END_SRC
 
 Not Java specific but I've only had this issue when working with Java so...
@@ -848,7 +793,8 @@ Use markdown-mode
 
 #+BEGIN_SRC emacs-lisp
 (use-package markdown-mode
-  :ensure t)
+  :ensure t
+  :defer t)
 #+END_SRC
 
 ** Org
@@ -868,7 +814,8 @@ Add the time when a TODO item is marked completed
 Markdown Export
 #+BEGIN_SRC emacs-lisp
 (use-package ox-gfm
-  :ensure t)
+  :ensure t
+  :defer t)
 #+END_SRC
 
 ** Web
@@ -896,9 +843,6 @@ web-mode is good for editing HTML and JS
     (setq web-mode-markup-indent-offset 2))
 
   (add-hook 'web-mode-hook 'uplift/web-mode-hook))
-
-(use-package less-css-mode
-  :ensure t)
 
 (use-package emmet-mode
   :ensure t
@@ -950,6 +894,7 @@ A http client for a postman like experience from within emacs!
 #+BEGIN_SRC emacs-lisp
 (use-package restclient
   :ensure t
+  :defer t
   :mode ("\\.http\\'" . restclient-mode))
 #+END_SRC
 
