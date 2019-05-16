@@ -1,4 +1,4 @@
-d#+TITLE: Fed's Emacs Configuration (evil centric)
+#+TITLE: Fed's Emacs Configuration (evil centric)
 
 This file is loaded by =init.el=, using babel.
 
@@ -400,6 +400,7 @@ Counsel ensures that you use the Ivy versions of common commands, which offer gr
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
   :ensure t
+  :defer t
   :bind
   (("M-x" . counsel-M-x)
    ("M-y" . counsel-yank-pop)
@@ -408,6 +409,7 @@ Counsel ensures that you use the Ivy versions of common commands, which offer gr
 
 (use-package counsel-projectile
   :ensure t
+  :defer t
   :config (counsel-projectile-mode))
 
 (use-package flx
@@ -458,7 +460,6 @@ Evil mode is Emacs version of VIM modal editing.
  :ensure t
  :config (evil-escape-mode 1))
 (setq-default evil-escape-key-sequence "jk")
-
 #+END_SRC
 
 ** which-key
@@ -538,10 +539,12 @@ Add support for git with magit
 #+BEGIN_SRC emacs-lisp
 (use-package magit
   :ensure t
+  :defer t
   :bind (("C-c m" . magit-status)))
 
 (use-package magit-gitflow
   :ensure t
+  :defer t
   :config (add-hook 'magic-mode-hook 'turn-on-magit-gitflow))
 #+END_SRC
 
@@ -552,6 +555,7 @@ Install company and use it everywhere
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :ensure t
+  :defer t
   :bind (("TAB" . company-indent-or-complete-common))
   :config (global-company-mode))
 #+END_SRC
@@ -569,6 +573,7 @@ Add quickhelp to show documentation
 #+BEGIN_SRC emacs-lisp
 (use-package company-quickhelp
   :ensure t
+  :defer t
   :config (company-quickhelp-mode 1))
 
 (use-package pos-tip
@@ -682,11 +687,13 @@ CIDER does all of the heavy lifting for Clojure
      (setq cider-auto-jump-to-error             nil)
      (setq cider-auto-select-error-buffer       nil)
      (setq cider-show-error-buffer              :only-in-repl)
+     (setq cider-repl-pop-to-buffer-on-connect  nil)
      (setq cider-auto-select-test-report-buffer nil)
      (setq cider-repl-history-file              (expand-file-name "cider-history" user-emacs-directory))
    :bind (:map cider-repl-mode-map
               ("M-r" . cider-namespace-refresh)
               ("C-c DEL" . cider-repl-clear-buffer)))
+
 #+END_SRC
 
 More clojure highlighting
@@ -717,22 +724,24 @@ Elm Mode
 
 ** Go-lang
 
-#+BEGIN_SRC emacs-lisp
-(use-package go-mode
-  :ensure t
-  :defer t)
-#+END_SRC
+# #+BEGIN_SRC emacs-lisp
+# (use-package go-mode
+#   :ensure t
+#   :defer t)
+# #+END_SRC
 
 Local Go playground in emacs
-#+BEGIN_SRC emacs-lisp
-(use-package go-playground
-  :ensure t)
-#+END_SRC
+# #+BEGIN_SRC emacs-lisp
+# (use-package go-playground
+#   :ensure t
+#   :defer t)
+# #+END_SRC
 
 Flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :ensure t
+  :defer t
   :pin melpa-stable
   :init (global-flycheck-mode))
 #+END_SRC
@@ -744,7 +753,10 @@ Gofmt & flycheck on save
 
 ** Java
 #+BEGIN_SRC emacs-lisp
-(require 'cc-mode)
+(use-package cc-mode
+  :ensure t
+  :defer t)
+
 (use-package lsp-mode 
   :ensure t
   :defer t)
@@ -805,6 +817,7 @@ Highlight code in =#+BEGIN_SRC ... #+END_SRC= blocks in org files
 (setq org-src-fontify-natively t)
 #+END_SRC
 
+
 Add the time when a TODO item is marked completed
 
 #+BEGIN_SRC emacs-lisp
@@ -851,6 +864,29 @@ web-mode is good for editing HTML and JS
 
 * Keymaps
 
+#+BEGIN_SRC emacs-lisp
+(use-package general :ensure t
+  :config
+  (general-define-key
+   :states '(normal visual insert emacs)
+   :prefix "SPC"
+   :non-normal-prefix "C-SPC"
+
+    "e e"   'cider-eval-last-sexp
+    "e b"   'cider-load-buffer
+    "e p"   'cider-pprint-eval-last-sexp
+    "e '"   'cider-jack-in-clj
+    "e d"   'cider-debug-defun-at-point
+    "t t"   'cider-test-run-test
+    "t n"   'cider-test-run-ns-tests
+    "f f"   'find-file
+    "f b"   'ivy-switch-buffer
+    "w o"   'other-window
+    "w l"   'switch-to-previous-buffer
+    "g g"   'cider-find-var
+    "g b"   'xref-pop-marker-stack
+))
+#+END_SRC
 
 Switch back to last buffer
 #+BEGIN_SRC emacs-lisp
@@ -861,6 +897,10 @@ Switch back to last buffer
 (global-set-key (kbd "C-c b") 'switch-to-previous-buffer)
 #+END_SRC
 
+Make sure evil mode does not override find var
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-.") 'cider-find-var)
+#+END_SRC
 Run Cider Debugger
 #+BEGIN_SRC emacs-lisp
 (defun my-cider-debug-setup ()
@@ -897,7 +937,6 @@ A http client for a postman like experience from within emacs!
   :defer t
   :mode ("\\.http\\'" . restclient-mode))
 #+END_SRC
-
 ** Disable debugging
 
 Startup finished, turn debugging off
