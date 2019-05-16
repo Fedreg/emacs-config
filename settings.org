@@ -888,19 +888,6 @@ web-mode is good for editing HTML and JS
 ))
 #+END_SRC
 
-Switch back to last buffer
-#+BEGIN_SRC emacs-lisp
-(defun switch-to-previous-buffer ()
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
-
-(global-set-key (kbd "C-c b") 'switch-to-previous-buffer)
-#+END_SRC
-
-Make sure evil mode does not override find var
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "M-.") 'cider-find-var)
-#+END_SRC
 Run Cider Debugger
 #+BEGIN_SRC emacs-lisp
 (defun my-cider-debug-setup ()
