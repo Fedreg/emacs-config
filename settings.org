@@ -262,6 +262,7 @@ Use custom backup directory, move deleted files to trash
 Save clipboard from other program into kill ring before replacing it
 
 #+BEGIN_SRC emacs-lips
+(setq xclip-mode t)
 (setq save-interprogram-paste-before-kill t)
 #+END_SRC
 
@@ -871,7 +872,6 @@ web-mode is good for editing HTML and JS
    :states '(normal visual insert emacs)
    :prefix "SPC"
    :non-normal-prefix "C-SPC"
-
     "e e"   'cider-eval-last-sexp
     "e b"   'cider-load-buffer
     "e p"   'cider-pprint-eval-last-sexp
@@ -881,11 +881,28 @@ web-mode is good for editing HTML and JS
     "t n"   'cider-test-run-ns-tests
     "f f"   'find-file
     "f b"   'ivy-switch-buffer
+    "f a"   'counsel-ag
+    "f l"   'switch-to-previous-buffer
+    "f s"   'save-buffer
     "w o"   'other-window
-    "w l"   'switch-to-previous-buffer
-    "g g"   'cider-find-var
+    "w v"   'split-window-right
+    "w h"   'split-window-below
+    "w x"   'delete-window
+    "w #"   'display-line-numbers-mode
+    "g f"   'cider-find-var
     "g b"   'xref-pop-marker-stack
+    "c c"   'comment-line
+    "x x"   'suspend-emacs
 ))
+#+END_SRC
+
+Switch back to last buffer
+#+BEGIN_SRC emacs-lisp
+(defun switch-to-previous-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+(global-set-key (kbd "C-c b") 'switch-to-previous-buffer)
 #+END_SRC
 
 Run Cider Debugger
@@ -932,4 +949,5 @@ Startup finished, turn debugging off
 (setq debug-on-error nil)
 (setq debug-on-quit nil)
 #+END_SRC
+
 
