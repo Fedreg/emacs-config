@@ -262,7 +262,7 @@ Use custom backup directory, move deleted files to trash
 Save clipboard from other program into kill ring before replacing it
 
 #+BEGIN_SRC emacs-lips
-(setq xclip-mode t)
+(setq-default xclip-mode t)
 (setq save-interprogram-paste-before-kill t)
 #+END_SRC
 
@@ -628,6 +628,11 @@ Activate by mode
 
 ** General Lisps
 
+Use Paredit
+#+BEGIN_SRC emacs-lisp
+(setq-default paredit-mode t)
+#+END_SRC
+
 Highlight parentheses
 
 #+BEGIN_SRC emacs-lisp
@@ -872,13 +877,6 @@ web-mode is good for editing HTML and JS
    :states '(normal visual insert emacs)
    :prefix "SPC"
    :non-normal-prefix "C-SPC"
-    "e e"   'cider-eval-last-sexp
-    "e b"   'cider-load-buffer
-    "e p"   'cider-pprint-eval-last-sexp
-    "e '"   'cider-jack-in-clj
-    "e d"   'cider-debug-defun-at-point
-    "t t"   'cider-test-run-test
-    "t n"   'cider-test-run-ns-tests
     "f f"   'find-file
     "f b"   'ivy-switch-buffer
     "f a"   'counsel-ag
@@ -889,11 +887,36 @@ web-mode is good for editing HTML and JS
     "w h"   'split-window-below
     "w x"   'delete-window
     "w #"   'display-line-numbers-mode
-    "g f"   'cider-find-var
     "g b"   'xref-pop-marker-stack
     "c c"   'comment-line
     "x x"   'suspend-emacs
-))
+    "o o"   'org-cycle)
+
+  (general-define-key
+   :states '(normal visual insert emacs)
+   :prefix "SPC"
+   :keymaps 'clojure-mode-map
+   :non-normal-prefix "C-SPC"
+    "e e"   'cider-eval-last-sexp
+    "e b"   'cider-load-buffer
+    "e p"   'cider-pprint-eval-last-sexp
+    "e '"   'cider-jack-in-clj
+    "e d"   'cider-debug-defun-at-point
+    "t t"   'cider-test-run-test
+    "t n"   'cider-test-run-ns-tests
+    "g f"   'cider-find-var)
+
+  (general-define-key
+   :states '(normal visual insert emacs)
+   :prefix "SPC"
+   :keymaps 'lisp-mode-map
+   :non-normal-prefix "C-SPC"
+    "e e"   'slime-eval-last-expression
+    "e b"   'slime-eval-buffer
+    "e p"   'slime-eval-print-last-expression
+    "e '"   'slime)
+)
+
 #+END_SRC
 
 Switch back to last buffer
