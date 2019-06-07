@@ -262,7 +262,11 @@ Use custom backup directory, move deleted files to trash
 Save clipboard from other program into kill ring before replacing it
 
 #+BEGIN_SRC emacs-lips
-(setq-default xclip-mode t)
+(use-package xclip-mode
+  :ensure t
+  :defer t
+  :init (xclip-mode 1))
+
 (setq save-interprogram-paste-before-kill t)
 #+END_SRC
 
@@ -710,6 +714,15 @@ More clojure highlighting
   :defer t)
 #+END_SRC
 
+** Clojurescript
+Cider Repl
+#+BEGIN_SRC emacs-lisp
+(setq cider-cljs-lein-repl
+	"(do (require 'figwheel-sidecar.repl-api)
+         (figwheel-sidecar.repl-api/start-figwheel!)
+         (figwheel-sidecar.repl-api/cljs-repl))")
+#+END_SRC
+
 ** Elixir
 
 Alchemist is the Elixir mode for Emacs
@@ -913,7 +926,8 @@ web-mode is good for editing HTML and JS
    :non-normal-prefix "C-SPC"
     "e e"   'slime-eval-last-expression
     "e b"   'slime-eval-buffer
-    "e p"   'slime-eval-print-last-expression
+    "e p"   'slime-pprint-eval-last-expression
+    "e t"   'slime-toggle-fancy-trace
     "e '"   'slime)
 )
 
@@ -972,5 +986,3 @@ Startup finished, turn debugging off
 (setq debug-on-error nil)
 (setq debug-on-quit nil)
 #+END_SRC
-
-
