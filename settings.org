@@ -28,15 +28,6 @@ Always use UTF-8 when possible
 (setq default-buffer-file-coding-system 'utf-8)
 #+END_SRC
 
-** Setup packages
-
-#+BEGIN_SRC emacs-lisp
-(require 'package)
-
-(eval-when-compile
-  (require 'use-package))
-#+END_SRC
-
 Remove HTTP entries from package archives
 
 #+BEGIN_SRC emacs-lisp
@@ -54,6 +45,7 @@ Add package repositories (GNU, melpa[-stable], marmalade, and org-elpa)
 (add-to-list 'package-archives melpa t)
 (add-to-list 'package-archives melpa-stable t)
 #+END_SRC
+
 
 Evaluate package list
 
@@ -83,6 +75,15 @@ Install missing packages
   (error
    (package-refresh-contents)
    (init--install-packages)))
+#+END_SRC
+
+** Setup packages
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+
+(eval-when-compile
+  (require 'use-package))
 #+END_SRC
 
 ** Startup
@@ -130,7 +131,7 @@ Hide the toolbar, menubar, scrollbar, and tooltips
 #+BEGIN_SRC emacs-lisp
 (tool-bar-mode -1)
 (menu-bar-mode 1)
-(scroll-bar-mode -1)
+; (scroll-bar-mode -1)
 (tooltip-mode 1)
 
 
@@ -331,7 +332,8 @@ Auto Save buffers
 #+BEGIN_SRC emacs-lisp
 (defun uplift/osx-fonts ()
   (interactive)
-  (set-fontset-font "fontset-default" 'symbol "Menlo")
+  ;(set-fontset-font "fontset-default" 'symbol "Menlo")
+  (add-to-list 'default-frame-alist '(font . "Menlo"))
   (setq mac-allow-anti-aliasing t))
 
 (defun uplift/linux-fonts ()
@@ -350,9 +352,9 @@ Auto Save buffers
 ** Theme
 
 #+BEGIN_SRC emacs-lisp
-(use-package clues-theme
+(use-package sublime-themes
   :ensure t
-  :config (load-theme 'clues t))
+  :config (load-theme 'junio t))
 #+END_SRC
 ** Modeline
 
@@ -603,7 +605,7 @@ Highlight the current line
 Show trailing whitespace
 
 #+BEGIN_SRC emacs-lisp
-(setq-default show-trailing-whitespace t)
+(setq-default show-trailing-whitespace nil)
 #+END_SRC
 
 *** Spaces
@@ -630,14 +632,23 @@ Activate by mode
 (add-hook 'clojure-mode-hook 'hs-minor-mode)
 #+END_SRC
 
-** General Lisps
-
-Use Paredit
+*** IEdit
 #+BEGIN_SRC emacs-lisp
-(setq-default paredit-mode t)
+(use-package iedit
+  :ensure t
+  :defer t)
 #+END_SRC
 
-Highlight parentheses
+** General Lisps
+
+Use SmartParens
+#+BEGIN_SRC emacs-lisp
+(use-package smartparens
+  :ensure t
+  :defer t
+  :config (add-hook 'prog-mode-hook 'smartparens-mode))
+#+END_SRC
+
 
 #+BEGIN_SRC emacs-lisp
 (use-package highlight-parentheses
@@ -648,11 +659,11 @@ Highlight parentheses
 
 Enable rainbow delimiters
 
-# #+BEGIN_SRC emacs-lisp
-# (use-package rainbow-delimiters
-#   :ensure t
-#   :config (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-# #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters
+  :ensure t
+  :config (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+#+END_SRC
 
 ** Common Lisp
 
@@ -890,7 +901,7 @@ web-mode is good for editing HTML and JS
    :states '(normal visual insert emacs)
    :prefix "SPC"
    :non-normal-prefix "C-SPC"
-    "f f"   'find-file
+    "f f"   'counsel-find-file
     "f b"   'ivy-switch-buffer
     "f a"   'counsel-ag
     "f l"   'switch-to-previous-buffer
@@ -914,9 +925,11 @@ web-mode is good for editing HTML and JS
     "e b"   'cider-load-buffer
     "e p"   'cider-pprint-eval-last-sexp
     "e '"   'cider-jack-in-clj
+    "e \""  'cider-jack-in-cljs
     "e d"   'cider-debug-defun-at-point
     "t t"   'cider-test-run-test
     "t n"   'cider-test-run-ns-tests
+    "t a"   'cider-test-run-project-tests
     "g f"   'cider-find-var)
 
   (general-define-key
