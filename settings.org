@@ -330,21 +330,21 @@ Auto Save buffers
 ** Font
 
 #+BEGIN_SRC emacs-lisp
-(defun uplift/osx-fonts ()
+(defun fed/osx-fonts ()
   (interactive)
-  ;(set-fontset-font "fontset-default" 'symbol "Menlo")
+  (set-fontset-font "fontset-default" 'symbol "Menlo")
   (add-to-list 'default-frame-alist '(font . "Menlo"))
   (setq mac-allow-anti-aliasing t))
 
-(defun uplift/linux-fonts ()
+(defun fed/linux-fonts ()
   (interactive)
   (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono")))
 
 (when (eq system-type 'darwin)
-  (add-hook 'after-init-hook #'uplift/osx-fonts))
+  (add-hook 'after-init-hook #'fed/osx-fonts))
 
 (when (eq window-system 'x)
-  (add-hook 'after-init-hook #'uplift/linux-fonts))
+  (add-hook 'after-init-hook #'fed/linux-fonts))
 
 (setq-default line-spacing 5)
 #+END_SRC
@@ -353,8 +353,10 @@ Auto Save buffers
 
 #+BEGIN_SRC emacs-lisp
 (use-package sublime-themes
-  :ensure t
-  :config (load-theme 'junio t))
+ :ensure t
+ :config (load-theme 'fogus t))
+
+(set-cursor-color "#f00") 
 #+END_SRC
 ** Modeline
 
@@ -420,6 +422,11 @@ Counsel ensures that you use the Ivy versions of common commands, which offer gr
   :config (counsel-projectile-mode))
 
 (use-package flx
+  :ensure t
+  :defer t)
+  
+  ;; remember last M-x command
+(use-package smex
   :ensure t
   :defer t)
 #+END_SRC
@@ -692,6 +699,7 @@ Enable rainbow delimiters
 #+BEGIN_SRC emacs-lisp
   (use-package clojure-mode
     :ensure t
+    :config (setq clojure-align-forms-automatically t)
     :bind (("C-c M-q" . lisp-fill-paragraph)
            ("C-x 9" . display-line-numbers-mode)))
 #+END_SRC
@@ -752,6 +760,20 @@ Elm Mode
   :defer t)
 #+END_SRC
 
+** Swift
+
+Swift Mode
+#+BEGIN_SRC emacs-lisp
+(use-package swift-mode
+  :ensure t
+  :defer t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package swift-playground-mode 
+  :ensure t 
+  :defer t)
+#+END_SRC
 ** Go-lang
 
 # #+BEGIN_SRC emacs-lisp
@@ -904,8 +926,11 @@ web-mode is good for editing HTML and JS
     "f f"   'counsel-find-file
     "f b"   'ivy-switch-buffer
     "f a"   'counsel-ag
-    "f l"   'switch-to-previous-buffer
     "f s"   'save-buffer
+    "f l"   'switch-to-previous-buffer
+    "m s"   'magit-status
+    "m b"   'magit-blame
+    "m q"   'magit-blame-quit
     "w o"   'other-window
     "w v"   'split-window-right
     "w h"   'split-window-below
@@ -921,6 +946,7 @@ web-mode is good for editing HTML and JS
    :prefix "SPC"
    :keymaps 'clojure-mode-map
    :non-normal-prefix "C-SPC"
+    "c a"   'clojure-align
     "e e"   'cider-eval-last-sexp
     "e b"   'cider-load-buffer
     "e p"   'cider-pprint-eval-last-sexp
