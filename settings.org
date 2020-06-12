@@ -347,6 +347,11 @@ Auto Save buffers
   (add-hook 'after-init-hook #'fed/linux-fonts))
 
 (setq-default line-spacing 5)
+
+(use-package default-text-scale
+ :ensure t
+ :config (default-text-scale-mode t))
+
 #+END_SRC
 
 ** Theme
@@ -560,6 +565,10 @@ Add support for git with magit
   :ensure t
   :defer t
   :config (add-hook 'magic-mode-hook 'turn-on-magit-gitflow))
+
+(use-package evil-magit
+  :ensure t
+  :defer t)
 #+END_SRC
 
 *** Auto Completion
@@ -717,7 +726,9 @@ CIDER does all of the heavy lifting for Clojure
      (setq cider-auto-select-error-buffer       nil)
      (setq cider-show-error-buffer              :only-in-repl)
      (setq cider-repl-pop-to-buffer-on-connect  nil)
-     (setq cider-auto-select-test-report-buffer nil)
+     (setq cider-auto-select-test-report-buffer t)
+     (setq cider-test-show-report               nil)
+     (setq cider-repl-display-in-current-window t)
      (setq cider-repl-history-file              (expand-file-name "cider-history" user-emacs-directory))
    :bind (:map cider-repl-mode-map
               ("M-r" . cider-namespace-refresh)
@@ -773,34 +784,6 @@ Swift Mode
 (use-package swift-playground-mode 
   :ensure t 
   :defer t)
-#+END_SRC
-** Go-lang
-
-# #+BEGIN_SRC emacs-lisp
-# (use-package go-mode
-#   :ensure t
-#   :defer t)
-# #+END_SRC
-
-Local Go playground in emacs
-# #+BEGIN_SRC emacs-lisp
-# (use-package go-playground
-#   :ensure t
-#   :defer t)
-# #+END_SRC
-
-Flycheck
-#+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :ensure t
-  :defer t
-  :pin melpa-stable
-  :init (global-flycheck-mode))
-#+END_SRC
-
-Gofmt & flycheck on save
-#+BEGIN_SRC emacs-lisp
-(add-hook 'before-save-hook 'gofmt-before-save)
 #+END_SRC
 
 ** Java
@@ -923,11 +906,11 @@ web-mode is good for editing HTML and JS
    :states '(normal visual insert emacs)
    :prefix "SPC"
    :non-normal-prefix "C-SPC"
-    "f f"   'counsel-find-file
-    "f b"   'ivy-switch-buffer
+    "b b"   'ivy-switch-buffer
+    "b l"   'switch-to-previous-buffer
     "f a"   'counsel-ag
+    "f f"   'counsel-find-file
     "f s"   'save-buffer
-    "f l"   'switch-to-previous-buffer
     "m s"   'magit-status
     "m b"   'magit-blame
     "m q"   'magit-blame-quit
@@ -938,7 +921,11 @@ web-mode is good for editing HTML and JS
     "w #"   'display-line-numbers-mode
     "g b"   'xref-pop-marker-stack
     "c c"   'comment-line
+    "s q"   'switch-to-previous-buffer
     "x x"   'suspend-emacs
+    "h h"   'hs-hide-all
+    "h s"   'hs-show-all
+    "h t"   'hs-toggle-hiding
     "o o"   'org-cycle)
 
   (general-define-key
@@ -953,9 +940,13 @@ web-mode is good for editing HTML and JS
     "e '"   'cider-jack-in-clj
     "e \""  'cider-jack-in-cljs
     "e d"   'cider-debug-defun-at-point
+    "s s"   'cider-switch-to-repl-buffer
+    "s q"   'switch-to-previous-buffer
+    "s c"   'cider-find-and-clear-repl-output
     "t t"   'cider-test-run-test
     "t n"   'cider-test-run-ns-tests
     "t a"   'cider-test-run-project-tests
+    "x x"   'cider-xref-fn-refs
     "g f"   'cider-find-var)
 
   (general-define-key
@@ -978,7 +969,6 @@ Switch back to last buffer
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) 1)))
 
-(global-set-key (kbd "C-c b") 'switch-to-previous-buffer)
 #+END_SRC
 
 Run Cider Debugger
