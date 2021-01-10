@@ -19,9 +19,10 @@ brew update
 brew install emacs --with-cocoa
 brew linkapps emacs
 ```
+## OR, Downad directly from https://emacsforosx.com/
+
 ## configure .emacs.d
 
-git clone https://github.com/fedreg/emacs-config.git
-(If you have an existing .emacs.d): mv ~/.emacs.d ~/.emacs.bak
-cp -r emacs-config ~/.emacs.d
-rm -rf emacs-config
+stick the `init.el` file from this repo in `~/.emacs.d`
+(If you have an existing `.emacs.d/init.el`): `cp ~/.emacs.d/ ~/.emacs.bak`
+
