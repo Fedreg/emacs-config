@@ -11,8 +11,10 @@
 		      evil-escape
 		      evil-leader
 		      fzf
-		      projectile
-		      modus-themes))
+		      magit
+		      modus-themes
+		      undo-fu
+		      projectile))
 
  ;; Package Repos
  (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/") t)
@@ -35,6 +37,8 @@
  ;; Evil Mode (vim)
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+ (setq evil-undo-system 'undo-fu)
+
  (require 'evil)
  (evil-mode t)
 
@@ -42,17 +46,22 @@
  (global-evil-leader-mode)
  (evil-leader/set-leader "SPC")
 
+ (require 'evil-escape)
  (evil-escape-mode 1)
  (setq-default evil-escape-key-sequence "jk")
 
  (evil-leader/set-key
-   "b" 'switch-to-buffer
-   "f" 'ag
-   "l" 'switch-to-previous-buffer
-   "w" 'save-buffer
-   "z" 'fzf
-   "c" 'comment-line)
-   
+   "a"     'ag
+   "b"     'switch-to-buffer
+   "c"     'comment-line
+   "f f"   'find-file
+   "f s"   'save-buffer
+   "m s"   'magit-status
+   "m b b" 'magit-blame-echo
+   "m b q" 'magit-blame-quit
+   "w l"   'switch-to-previous-buffer
+   "w o"   'other-window
+   "z"     'fzf)
 
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ;; Navigation
@@ -92,6 +101,11 @@
  ;; Font
  (add-to-list 'default-frame-alist '(font . "Menlo-16"))
 
+ ;; Ido Mode (default emacs narrowing; comes with Emacs)
+ (setq ido-enable-flex-matching t)
+ (setq ido-everywhere t)
+ (ido-mode 1)
+
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ;; FS
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -126,7 +140,7 @@
 
  (add-hook 'cider--debug-mode-hook 'my-cider-debug-setup)
 
- (defun run-cider-debugger()
+ (defun run-cider-debugger ()
    "Need to use this to work with evil mode"
    (interactive)
    (cider-debug-defun-at-point))
@@ -138,7 +152,8 @@
    "e b" 'cider-load-buffer
    "e d" 'run-cider-debugger
    "e e" 'cider-eval-last-sexp
-   "e p" 'cider-pprint-eval-last-sexp
+   "e p" 'cider-pprint-eval-last-sexp ;; prints in repl
+   "e P" 'cider-eval-print-last-sexp ;; prints in buffer
    "g f" 'cider-find-var
    "g b" 'cider-pop-back
    "s s" 'cider-switch-to-repl-buffer
