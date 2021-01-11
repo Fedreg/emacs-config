@@ -1,3 +1,12 @@
+About as minimal an Emacs config as I can have and still be productive.
+
+This one is geared toward Clojure which is my main language these days.
+
+If you're not a fan of vim bindings, just remove all the evil packages (evil is the vim emulation mode for emacs)
+and use a packages such as [general.el](https://github.com/noctuid/general.el) for your custom keybindings.
+
+This config makes your Emacs open near instantly and looks the same in TTY or GUI modes
+
 # Install Emacs
 
 ## macOS
