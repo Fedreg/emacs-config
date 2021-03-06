@@ -1,3 +1,6 @@
+;; increase garbace collector threshold for startup
+(setq gc-cons-threshold (* 50 1000 1000))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -52,21 +55,21 @@
 
 (use-package evil-leader
   :ensure t
+  :defer t
   :config
   (global-evil-leader-mode)
   (evil-leader/set-leader "SPC")
   (evil-leader/set-key
-    "a"     'ag
     "b"     'switch-to-buffer
     "c"     'comment-line
+    "f a"   'ag-project
     "f f"   'find-file
-    "f s"   'save-buffer
     "l"     'switch-to-previous-buffer
     "m s"   'magit-status
     "m b b" 'magit-blame-echo
     "m b q" 'magit-blame-quit
     "o"     'org-cycle
-    "w o"   'other-window
+    "s"     'save-buffer
     "w x"   'kill-this-buffer
     "w v"   'evil-window-vsplit
     "x"     'suspend-emacs
@@ -95,11 +98,10 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; Fullscreen on startup
 (add-hook 'window-setup-hook 'toggle-frame-fullscreen nil)
 
-;; Theme
-(use-package doom-themes
+(use-package modus-themes
   :ensure t
   :config
-  (load-theme 'doom-city-lights t))
+  (load-theme 'modus-vivendi t))
 
 (set-cursor-color "#f00") 
 
@@ -135,8 +137,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package projectile
   :ensure t
   :defer t
-  :config (projectile-mode 1))
-
+  :init (projectile-mode +1))
 
 (use-package fzf
   :ensure t
@@ -152,13 +153,23 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package magit
   :ensure t
-  :defer t)
+  :defer t
+  :config
+   (setq magit-blame-styles
+           '((margin
+              (margin-format " %s%f" " %C %a" " %H")
+              (margin-width . 42)
+              (margin-face . magit-blame-margin)
+              (margin-body-face magit-blame-dimmed)))))
 
 ;; SO that customizations aren't loaaded into this file
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 
 ;; No backup files
 (setq make-backup-files nil)
+
+;; Auto Save on loss of focus
+(add-hook 'focus-out-hook (lambda () (save-some-buffers t)))
 
 (use-package company
   :ensure t
@@ -169,11 +180,14 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package xclip
   :ensure t
   :defer t
-  :config (xclip-mode 1))
+  :init (xclip-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Clojure
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(add-to-list 'auto-mode-alist '("\\.edn$" .    clojure-mode))
+(add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
 
 (use-package cider
   :ensure t
@@ -219,20 +233,23 @@ Repeated invocations toggle between the two most recently open buffers."
   :config
   (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
 
-(evil-leader/set-key-for-mode 'clojure-mode
-  "e '" 'cider-jack-in
-  "e b" 'cider-load-buffer
-  "e d" 'run-cider-debugger
-  "e e" 'cider-eval-last-sexp
-  "e p" 'cider-pprint-eval-last-sexp ;; prints in repl
-  "e P" 'cider-eval-print-last-sexp ;; prints in buffer
-  "e x" 'cider-interrupt
-  "g f" 'cider-find-var
-  "g b" 'cider-pop-back
-  "s s" 'cider-switch-to-repl-buffer
-  "s c" 'cider-find-and-clear-repl-output
-  "t t" 'cider-test-run-test
-  "t n" 'cider-test-run-ns-tests)
+(with-eval-after-load 'evil
+  (evil-leader/set-key-for-mode 'clojure-mode
+    "d"   'cider-doc
+    "e '" 'cider-jack-in
+    "e b" 'cider-load-buffer
+    "e c" 'cider-connect
+    "e d" 'run-cider-debugger
+    "e e" 'cider-eval-last-sexp
+    "e p" 'cider-pprint-eval-last-sexp ;; prints in repl
+    "e P" 'cider-eval-print-last-sexp ;; prints in buffer
+    "e x" 'cider-interrupt
+    "g f" 'cider-find-var
+    "g b" 'cider-pop-back
+    "s s" 'cider-switch-to-repl-buffer
+    "s c" 'cider-find-and-clear-repl-output
+    "t t" 'cider-test-run-test
+    "t n" 'cider-test-run-ns-tests))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; C
@@ -245,14 +262,33 @@ Repeated invocations toggle between the two most recently open buffers."
   (add-hook 'c-mode-hook #'auto-complete-mode))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Org
+;; sql
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun load-org-langs()
+  (org-babel-do-load-languages
+    'org-babel-load-languages
+    '((sql . t)
+    (emacs-lisp . t))))
 
 (use-package ob-sql-mode
   :ensure t
   :defer t
+  :init
+  (add-hook 'org-mode-hook #'load-org-langs))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Fennel
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package fennel-mode
+  :ensure t
+  :defer t
   :config
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((sql . t)
-     (emacs-lisp . t))))
+  (add-to-list 'auto-mode-alist '("\\.fnl\\'" . fennel-mode)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Cleanup after load
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq gc-cons-threshold (* 2 1000 1000))
