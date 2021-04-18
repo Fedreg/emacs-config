@@ -1,4 +1,4 @@
-;; increase garbace collector threshold for startup
+; increase garbace collector threshold for startup
 (setq gc-cons-threshold (* 50 1000 1000))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -33,7 +33,8 @@
 (use-package esup
   :ensure t
   :defer t
-  :config (setq esup-depth 0))
+  :config
+  (setq esup-deph 0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Evil Mode (vim)
@@ -48,10 +49,13 @@
   :ensure t
   :config
   (evil-mode t)
-  (global-set-key (kbd "C-j") 'evil-window-down)
-  (global-set-key (kbd "C-k") 'evil-window-up)
-  (global-set-key (kbd "C-h") 'evil-window-left)
-  (global-set-key (kbd "C-l") 'evil-window-right))
+  (evil-global-set-key 'normal (kbd "TAB") 'evil-jump-item)
+  (evil-global-set-key 'normal (kbd "C-z") 'suspend-emacs)
+  (evil-global-set-key 'normal (kbd "M-h") 'help-command)
+  (evil-global-set-key 'normal (kbd "C-j") 'evil-window-down)
+  (evil-global-set-key 'normal (kbd "C-k") 'evil-window-up)
+  (evil-global-set-key 'normal (kbd "C-h") 'evil-window-left)
+  (evil-global-set-key 'normal (kbd "C-l") 'evil-window-right))
 
 (use-package evil-leader
   :ensure t
@@ -60,10 +64,8 @@
   (global-evil-leader-mode)
   (evil-leader/set-leader "SPC")
   (evil-leader/set-key
+    "f"     'ag-project
     "b"     'switch-to-buffer
-    "c"     'comment-line
-    "f a"   'ag-project
-    "f f"   'find-file
     "l"     'switch-to-previous-buffer
     "m s"   'magit-status
     "m b b" 'magit-blame-echo
@@ -72,7 +74,6 @@
     "s"     'save-buffer
     "w x"   'kill-this-buffer
     "w v"   'evil-window-vsplit
-    "x"     'suspend-emacs
     "z"     'fzf))
 
 (use-package evil-escape
@@ -80,6 +81,12 @@
   :config
   (evil-escape-mode 1)
   (setq-default evil-escape-key-sequence "jk"))
+
+(use-package evil-commentary
+  :ensure t
+  :defer t
+  :config 
+  (evil-commentary-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Navigation
@@ -111,8 +118,8 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; Gui
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-(scroll-bar-mode -1)
-(tooltip-mode -1)
+; (scroll-bar-mode -1)
+; (tooltip-mode -1)
 
 ;; No startup banner
 (setq inhibit-startup-message t)
@@ -230,8 +237,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package rainbow-delimiters
   :ensure t
   :defer t
-  :config
-  (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
+  :hook ((prog-mode . rainbow-delimiters-mode)))
 
 (with-eval-after-load 'evil
   (evil-leader/set-key-for-mode 'clojure-mode
@@ -276,16 +282,6 @@ Repeated invocations toggle between the two most recently open buffers."
   :defer t
   :init
   (add-hook 'org-mode-hook #'load-org-langs))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Fennel
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(use-package fennel-mode
-  :ensure t
-  :defer t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.fnl\\'" . fennel-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cleanup after load
