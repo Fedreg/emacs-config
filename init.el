@@ -51,6 +51,8 @@
   :config
   (evil-mode t)
   (evil-global-set-key 'normal (kbd "TAB") 'evil-jump-item)
+  (evil-global-set-key 'visual (kbd "TAB") 'evil-jump-item)
+  (evil-global-set-key 'motion (kbd "TAB") 'evil-jump-item)
   (evil-global-set-key 'normal (kbd "C-z") 'suspend-emacs)
   (evil-global-set-key 'normal (kbd "M-h") 'help-command)
   (evil-global-set-key 'normal (kbd "C-j") 'evil-window-down)
@@ -65,17 +67,16 @@
   (global-evil-leader-mode)
   (evil-leader/set-leader "SPC")
   (evil-leader/set-key
-    "f"     'ag-project
-    "b"     'switch-to-buffer
-    "l"     'switch-to-previous-buffer
-    "m s"   'magit-status
-    "m b b" 'magit-blame-echo
-    "m b q" 'magit-blame-quit
-    "o"     'org-cycle
-    "s"     'save-buffer
-    "w x"   'kill-this-buffer
-    "w v"   'evil-window-vsplit
-    "z"     'fzf))
+    "f"   'ag-project
+    "b"   'switch-to-buffer
+    "l"   'switch-to-previous-buffer
+    "g s" 'magit-status
+    "g b" 'magit-blame-echo
+    "o"   'org-cycle
+    "s"   'save-buffer
+    "w x" 'kill-this-buffer
+    "w v" 'evil-window-vsplit
+    "z"   'fzf))
 
 (use-package evil-escape
   :ensure t
@@ -114,7 +115,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package modus-themes
   :ensure t
   :config 
-  (load-theme 'modus-vivendi))
+  (load-theme 'modus-vivendi t))
 
 (set-cursor-color "#f00") 
 
@@ -217,18 +218,31 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq cider-show-error-buffer              :only-in-repl)
   (setq cider-test-show-report               nil)
   (setq nrepl-hide-special-buffers           t)
-  )
+  (evil-global-set-key 'normal (kbd "C-]") 'go-forward)
+  (evil-global-set-key 'normal (kbd "C-t") 'pop-back))
 
 (defun my-cider-debug-setup ()
   (evil-make-overriding-map cider--debug-mode-map 'normal)
   (evil-normalize-keymaps))
 
-(add-hook 'cider--debug-mode-hook 'my-cider-debug-setup)
+(defun my-cider-nav-setup ()
+  (evil-make-overriding-map cider-mode-map 'normal)
+  (evil-normalize-keymaps))
+
+(add-hook 'cider--debug-mode-hook 'my-cider-debug-setup 'my-cider-nav-setup)
 
 (defun run-cider-debugger ()
   "Need to use this to work with evil mode"
   (interactive)
   (cider-debug-defun-at-point))
+
+(defun go-forward ()
+  (interactive)
+  (cider-find-var))
+
+(defun pop-back ()
+  (interactive)
+  (cider-pop-back))
 
 ;; Parens
 (use-package smartparens
@@ -247,8 +261,19 @@ Repeated invocations toggle between the two most recently open buffers."
   :defer t
   :hook ((prog-mode . rainbow-delimiters-mode)))
 
+(defun clj-ns-align ()
+  "Align ns requires."
+  (interactive)
+  (end-of-buffer)
+  (when (re-search-backward "^\(ns.*\\(\n.*\\)*\(:require" nil t nil)
+    (mark-sexp)
+    (align-regexp (region-beginning)
+                  (region-end)
+                  "\\(\\s-*\\)\\s-:")))
+
 (with-eval-after-load 'evil
   (evil-leader/set-key-for-mode 'clojure-mode
+    "a"   'clj-ns-align
     "d"   'cider-doc
     "e '" 'cider-jack-in
     "e b" 'cider-load-buffer
@@ -258,8 +283,6 @@ Repeated invocations toggle between the two most recently open buffers."
     "e p" 'cider-pprint-eval-last-sexp ;; prints in repl
     "e P" 'cider-eval-print-last-sexp ;; prints in buffer
     "e x" 'cider-interrupt
-    "g f" 'cider-find-var
-    "g b" 'cider-pop-back
     "s s" 'cider-switch-to-repl-buffer
     "s c" 'cider-find-and-clear-repl-output
     "t t" 'cider-test-run-test
