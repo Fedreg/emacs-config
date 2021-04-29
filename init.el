@@ -47,6 +47,7 @@
 
 (use-package evil
   :ensure t
+  :init (setq evil-want-keybinding nil)
   :config
   (evil-mode t)
   (evil-global-set-key 'normal (kbd "TAB") 'evil-jump-item)
@@ -82,11 +83,16 @@
   (evil-escape-mode 1)
   (setq-default evil-escape-key-sequence "jk"))
 
-(use-package evil-commentary
+(use-package evil-collection
+  :after evil
   :ensure t
-  :defer t
-  :config 
-  (evil-commentary-mode))
+  :config
+  (evil-collection-init))
+
+(use-package evil-commentary
+  :after evil
+  :ensure t
+  :config (evil-commentary-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Navigation
@@ -107,8 +113,8 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package modus-themes
   :ensure t
-  :config
-  (load-theme 'modus-vivendi t))
+  :config 
+  (load-theme 'modus-vivendi))
 
 (set-cursor-color "#f00") 
 
@@ -200,16 +206,18 @@ Repeated invocations toggle between the two most recently open buffers."
   :ensure t
   :defer  t
   :config
-  (setq cider-repl-use-pretty-printing       t)
-  (setq cider-repl-display-help-banner       nil)
   (setq cider-auto-jump-to-error             nil)
   (setq cider-auto-select-error-buffer       nil)
-  (setq cider-show-error-buffer              :only-in-repl)
-  (setq cider-repl-pop-to-buffer-on-connect  nil)
   (setq cider-auto-select-test-report-buffer t)
-  (setq cider-test-show-report               nil)
+  (setq cider-repl-display-help-banner       nil)
   (setq cider-repl-display-in-current-window t)
-  (setq cider-repl-history-file              (expand-file-name "cider-history" user-emacs-directory)))
+  (setq cider-repl-pop-to-buffer-on-connect  nil)
+  (setq cider-repl-use-pretty-printing       t)
+  (setq cider-save-file-on-load              t)
+  (setq cider-show-error-buffer              :only-in-repl)
+  (setq cider-test-show-report               nil)
+  (setq nrepl-hide-special-buffers           t)
+  )
 
 (defun my-cider-debug-setup ()
   (evil-make-overriding-map cider--debug-mode-map 'normal)
@@ -246,7 +254,7 @@ Repeated invocations toggle between the two most recently open buffers."
     "e b" 'cider-load-buffer
     "e c" 'cider-connect
     "e d" 'run-cider-debugger
-    "e e" 'cider-eval-last-sexp
+    "e e" 'cider-eval-sexp-at-point
     "e p" 'cider-pprint-eval-last-sexp ;; prints in repl
     "e P" 'cider-eval-print-last-sexp ;; prints in buffer
     "e x" 'cider-interrupt
