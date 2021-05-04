@@ -206,8 +206,7 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; Clojure
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(add-to-list 'auto-mode-alist '("\\.edn$" .    clojure-mode))
-(add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
+(add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
 
 (use-package cider
   :ensure t
@@ -303,6 +302,21 @@ Repeated invocations toggle between the two most recently open buffers."
     "e b" 'cider-load-buffer
     "e c" 'cider-connect
     "e d" 'run-cider-debugger
+    "e e" 'cider-eval-sexp-at-point
+    "e p" 'cider-pprint-eval-last-sexp ;; prints in repl
+    "e P" 'cider-eval-print-last-sexp ;; prints in buffer
+    "e x" 'cider-interrupt
+    "s s" 'open-repl-buffer
+    "s c" 'clear-repl-buffer
+    "s q" 'close-repl-buffer
+    "t t" 'cider-test-run-test
+    "t n" 'cider-test-run-ns-tests)
+  (evil-leader/set-key-for-mode 'clojurescript-mode
+    "a"   'clj-ns-align
+    "d"   'cider-doc
+    "e '" 'cider-jack-in-cljs
+    "e b" 'cider-load-buffer
+    "e c" 'cider-connect-cljs
     "e e" 'cider-eval-sexp-at-point
     "e p" 'cider-pprint-eval-last-sexp ;; prints in repl
     "e P" 'cider-eval-print-last-sexp ;; prints in buffer
