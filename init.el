@@ -36,6 +36,11 @@
   :config
   (setq esup-deph 0))
 
+(defun edit-init-file ()
+  "Edit the `user-init-file', in another window."
+  (interactive)
+  (find-file-other-window user-init-file))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Evil Mode (vim)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -67,6 +72,7 @@
   (global-evil-leader-mode)
   (evil-leader/set-leader "SPC")
   (evil-leader/set-key
+    "e v" 'edit-init-file
     "f"   'ag-project
     "b"   'switch-to-buffer
     "l"   'switch-to-previous-buffer
@@ -271,6 +277,24 @@ Repeated invocations toggle between the two most recently open buffers."
                   (region-end)
                   "\\(\\s-*\\)\\s-:")))
 
+(defun open-repl-buffer ()
+  (interactive)
+  (evil-window-vsplit)
+  (evil-window-next 1)
+  (cider-switch-to-repl-buffer))
+
+(defun clear-repl-buffer ()
+  (interactive)
+  (cider-find-and-clear-repl-output)
+  (cider-switch-to-repl-buffer)
+  (evil-goto-first-line)
+  (cider-switch-to-last-clojure-buffer))
+
+(defun close-repl-buffer ()
+  (interactive)
+  (evil-window-next 1)
+  (evil-quit t))
+  
 (with-eval-after-load 'evil
   (evil-leader/set-key-for-mode 'clojure-mode
     "a"   'clj-ns-align
@@ -283,8 +307,9 @@ Repeated invocations toggle between the two most recently open buffers."
     "e p" 'cider-pprint-eval-last-sexp ;; prints in repl
     "e P" 'cider-eval-print-last-sexp ;; prints in buffer
     "e x" 'cider-interrupt
-    "s s" 'cider-switch-to-repl-buffer
-    "s c" 'cider-find-and-clear-repl-output
+    "s s" 'open-repl-buffer
+    "s c" 'clear-repl-buffer
+    "s q" 'close-repl-buffer
     "t t" 'cider-test-run-test
     "t n" 'cider-test-run-ns-tests))
 
