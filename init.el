@@ -341,17 +341,26 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; sql
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun load-org-langs()
-  (org-babel-do-load-languages
-    'org-babel-load-languages
-    '((sql . t)
-    (emacs-lisp . t))))
+(add-hook 'sql-interactive-mode-hook
+	  (lambda ()
+	    (toggle-truncate-lines t)
+	    (setq-local show-trailing-whitespace nil)
+	    (auto-complete-mode t)))
 
-(use-package ob-sql-mode
-  :ensure t
-  :defer t
-  :init
-  (add-hook 'org-mode-hook #'load-org-langs))
+(add-hook 'sql-mode-hook
+          (lambda ()
+            (setq-local ac-ignore-case t)
+            (auto-complete-mode)))
+
+(setq sql-connection-alist
+      '((dev   (sql-product  'postgres)
+	       (sql-database "postgres://DB:PASSWORD@SERVER:PORT/DATABASE"))
+        
+	(stage (sql-product  'postgres)
+         (sql-database "postgres://DB:PASSWORD@SERVER:PORT/DATABASE"))
+
+	(prod  (sql-product  'postgres)
+	       (sql-database "postgres://DB:PASSWORD@SERVER:PORT/DATABASE"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cleanup after load
