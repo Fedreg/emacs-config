@@ -119,8 +119,14 @@
 ;; Look & Feel
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Theme and customizations
 (load-theme 'deeper-blue t)
+(set-face-background 'mode-line "#181a26")
+(set-face-foreground 'mode-line "#ddd")
+(set-face-attribute 'mode-line nil :box nil)
 (set-cursor-color "#f00") 
+(set-face-background 'vertical-border "#181a26")
+(set-face-foreground 'vertical-border "#181a26")
 
 ;; y or n for prompts
 (fset 'yes-or-no-p 'y-or-n-p)
