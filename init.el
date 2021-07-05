@@ -125,8 +125,9 @@
 (set-face-foreground 'mode-line "#ddd")
 (set-face-attribute 'mode-line nil :box nil)
 (set-cursor-color "#f00") 
-(set-face-background 'vertical-border "#181a26")
-(set-face-foreground 'vertical-border "#181a26")
+;; Remove vertical border line
+(set-display-table-slot standard-display-table 
+                        'vertical-border (make-glyph-code 8203)) 
 
 ;; y or n for prompts
 (fset 'yes-or-no-p 'y-or-n-p)
